@@ -13,7 +13,7 @@ if (currentLanguage.startsWith('zh')) {
   Resource = ResourceCN;
 } else if (currentLanguage.startsWith('ja')) {
   Resource = ResourceJA;
-  inputCSS("../../../src/common/styles/cover_EN.css") 
+  inputCSS("../../../src/common/styles/cover_JA.css") 
 } else {
   Resource = ResourceEN;
   inputCSS("../../../src/common/styles/cover_EN.css")

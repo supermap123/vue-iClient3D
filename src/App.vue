@@ -16,16 +16,23 @@
       <sm3d-limit-height-analysis></sm3d-limit-height-analysis>
       <sm3d-on-line-analysis></sm3d-on-line-analysis> -->
 
-      <sm3d-terrain-operation ></sm3d-terrain-operation>
+      <!-- <sm3d-terrain-operation ></sm3d-terrain-operation>
       <sm3d-terrain-flood ></sm3d-terrain-flood>
       <sm3d-terrain-slope ></sm3d-terrain-slope> 
-      <sm3d-terrain-isoline ></sm3d-terrain-isoline>
+      <sm3d-terrain-isoline ></sm3d-terrain-isoline> -->
 
       <!-- <sm3d-clip-box ></sm3d-clip-box>
       <sm3d-clip-plane ></sm3d-clip-plane>
       <sm3d-clip-cross></sm3d-clip-cross>
       <sm3d-clip-polygon ></sm3d-clip-polygon>
       <sm3d-clip-box-byeditor></sm3d-clip-box-byeditor> -->
+
+
+      <!-- <sm3d-add-point></sm3d-add-point>
+      <sm3d-add-polyline></sm3d-add-polyline>
+      <sm3d-add-polygon></sm3d-add-polygon> -->
+
+
     </sm-viewer>
   </div>
 </template>
@@ -42,8 +49,8 @@ export default {
         "http://www.supermapol.com/realspace/services/spatialAnalysis-data_all/restjsr/spatialanalyst/geometry/3d/buffer.json",
       // "http://www.supermapol.com/realspace/services/spatialAnalysis-data_all/restjsr/spatialanalyst/geometry/3d/viewshedbody.json",
       sceneURL:
-        "http://www.supermapol.com/realspace/services/3D-ZF_normal/rest/realspace",
-        // "http://www.supermapol.com/realspace/services/3D-cbd/rest/realspace",
+        // "http://www.supermapol.com/realspace/services/3D-ZF_normal/rest/realspace",
+        "http://www.supermapol.com/realspace/services/3D-cbd/rest/realspace",
       // URL_CONFIG.SCENE_BIMBUILDING,
       // URL_CONFIG.SCENE_WIREFRAME,
       // 'http://www.supermapol.com/realspace/services/3D-jinjiang/rest/realspace',

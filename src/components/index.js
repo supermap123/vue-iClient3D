@@ -40,6 +40,10 @@ import TerrainIsoLine from "./TerrainAnalysis/TerrainIsoLine/index.js";
 import GeologicBodyOperation from "./GeologicBodyAnalysis/GeologicBodyOperation/index.js";
 // import loadingBar from "./loading/index.js"
 // import drawRect from "./AttributeSearch/drawRect/index"
+// 编辑部分组件
+import addPonit from "./OnlineEdit/addPonit/index.js";
+import addPolyline from "./OnlineEdit/addPolyline/index.js";
+import addPolygon from "./OnlineEdit/addPolygon/index.js";
 
 const components = [
   viewer,
@@ -67,7 +71,10 @@ const components = [
 
   // loadingBar,
   // drawRect,
-  ColorPicker
+  ColorPicker,
+  addPonit,
+  addPolyline,
+  addPolygon,
 ]
 
 const install = function (Vue, opts = {}) {

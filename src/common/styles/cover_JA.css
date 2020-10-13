@@ -1,12 +1,13 @@
-
 .sm-panel{
   max-width: 360px;
 }
+
 /* clip cross */
 .sm-solider-input-box {
   width: 100% !important;
 
 }
+
 
 @media (max-width: 750px) {
   .sm-solider-input-box {

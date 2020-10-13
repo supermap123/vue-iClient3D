@@ -63,6 +63,9 @@ export default {
         case "analysis":
           ifontClass = "iconfont iconsanweifenxi";
           break;
+        case "draw":
+          ifontClass = "iconfont iconzaixianbianji";
+          break;
         default:
           null;
           break;
@@ -149,7 +152,7 @@ export default {
       }
       setTimeout(() => {
         store.setisInitViewer(true); //初始化viewer标志
-        common.initHandler("Polygon"); //初始化全局常用的画面的drawhandler
+        common.initHandler("Polygon",1); //初始化全局常用的画面的drawhandler
       }, 1000);
     },
   },

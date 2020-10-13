@@ -3,7 +3,8 @@ import App from './App.vue'
 
 // import echarts from 'echarts'
 // window.echarts = echarts //挂载到window上
-// import './common/scss/globe.scss'
+
+import './common/scss/globe.scss'
 import mycomnents from './components/index'
 Vue.use(mycomnents);
 

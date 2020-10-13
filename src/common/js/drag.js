@@ -82,7 +82,7 @@ Vue.directive('drag', {
       dragElem.onmousedown = function(e) {
           // e.stopPropagation();
           // e.preventDefault()
-          if (e.target.className == "min-solider") { //
+          if (e.target.className == "min-solider" || e.target.className == "sm-input sm-input-long"|| e.target.className == "sm-input-long" || e.target.className == "sm-input-right") { //
               e.stopPropagation();
               return;
           }

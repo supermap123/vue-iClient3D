@@ -5039,6 +5039,9 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
 
     LineBucket.prototype.upload = function upload(context) {
         if (!this.uploaded) {
+            if(this.layoutVertexArray == null) {
+                return;
+            }
             this.layoutVertexBuffer = context.createVertexBuffer(this.layoutVertexArray, members$3);
             this.indexBuffer = context.createIndexBuffer(this.indexArray);
         }
@@ -7618,6 +7621,9 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
     };
     FillBucket.prototype.upload = function upload(context) {
         if (!this.uploaded) {
+            if(this.layoutVertexArray == null) {
+                return;
+            }
             this.layoutVertexBuffer = context.createVertexBuffer(this.layoutVertexArray, members$1);
             this.indexBuffer = context.createIndexBuffer(this.indexArray);
             this.indexBuffer2 = context.createIndexBuffer(this.indexArray2);
@@ -9948,7 +9954,19 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
                 var a = ref[0].value;
                 var b = ref[1].value;
                 var properties = ctx.properties();
-                return (a in properties) && (properties[a].indexOf(b)) > -1;
+                if(!(a in properties)) {
+                    return false;
+                }
+                if(/^%.*[^%]$/.test(b)) { // 以百分号开头并且不以百分号结尾
+                    b = b.replace("%", "");
+                    return properties[a].endsWith(b);
+                } else if(/^(?!%).+%$/.test(b)) { // 以百分号结尾并且不以百分号开头
+                    b = b.replace("%", "");
+                    return properties[a].startsWith(b);
+                } else { // 百分号开头百分号结尾 or 不含百分号
+                    b = b.replace(/%/g, "");
+                    return (properties[a].indexOf(b)) > -1;
+                }
             }
         ],
         'filter-type-==': [
@@ -10841,7 +10859,7 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
     };
 
     FeatureIndex.prototype.loadMatchingFeature = function loadMatchingFeature(result, bucketIndex, sourceLayerIndex, featureIndex, filter, filterLayerIDs, styleLayers, intersectionTest) {
-        if(!defined.defined(bucketIndex) || !defined.defined(sourceLayerIndex) || !defined.defined(featureIndex)){
+        if(!when.defined(bucketIndex) || !when.defined(sourceLayerIndex) || !when.defined(featureIndex)){
             return;
         }
 
@@ -11367,310 +11385,6 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
     };
 
     /**
-     * @module util
-     * @private
-     */
-    function Util$1() {
-    }
-
-    /**
-     * Given a value `t` that varies between 0 and 1, return
-     * an interpolation function that eases between 0 and 1 in a pleasing
-     * cubic in-out fashion.
-     *
-     * @private
-     */
-    Util$1.easeCubicInOut = function (t) {
-        if (t <= 0) {
-            return 0;
-        }
-        if (t >= 1) {
-            return 1;
-        }
-        var t2 = t * t,
-            t3 = t2 * t;
-        return 4 * (t < 0.5 ? t3 : 3 * (t - t2) + t3 - 0.75);
-    };
-
-    /*
-     * Call an asynchronous function on an array of arguments,
-     * calling `callback` with the completed results of all calls.
-     *
-     * @param array input to each call of the async function.
-     * @param fn an async function with signature (data, callback)
-     * @param callback a callback run after all async work is done.
-     * called with an array, containing the results of each async call.
-     * @private
-     */
-    Util$1.asyncAll = function (array, fn, callback) {
-        if (!array.length) {
-            return callback(null, []);
-        }
-        var remaining = array.length;
-        var results = new Array(array.length);
-        var error = null;
-        array.forEach(function (item, i) {
-            fn(item, function (err, result) {
-                if (err) {
-                    error = err;
-                }
-                results[i] = ((result     )        ); // https://github.com/facebook/flow/issues/2123
-                if (--remaining === 0) {
-                    callback(error, results);
-                }
-            });
-        });
-    };
-
-    /**
-     * Given a destination object and optionally many source objects,
-     * copy all properties from the source objects into the destination.
-     * The last source object given overrides properties from previous
-     * source objects.
-     *
-     * @param dest destination object
-     * @param sources sources from which properties are pulled
-     * @private
-     */
-    Util$1.extend = function (dest) {
-        var sources = [], len = arguments.length - 1;
-        while (len-- > 0) sources[ len ] = arguments[ len + 1 ];
-
-        for (var i = 0, list = sources; i < list.length; i += 1) {
-            var src = list[i];
-
-            for (var k in src) {
-                dest[k] = src[k];
-            }
-        }
-        return dest;
-    };
-
-    var id$1 = 1;
-
-    /**
-     * Return a unique numeric id, starting at 1 and incrementing with
-     * each call.
-     *
-     * @returns unique numeric id.
-     * @private
-     */
-    Util$1.uniqueId = function () {
-        return id$1++;
-    };
-
-    /**
-     * Return a random UUID (v4). Taken from: https://gist.github.com/jed/982883
-     * @private
-     */
-    Util$1.uuid = function () {
-        function b(a) {
-            return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) :
-                //$FlowFixMe: Flow doesn't like the implied array literal conversion here
-                ([1e7] + -[1e3] + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
-        }
-
-        return b();
-    };
-
-    /**
-     * Validate a string to match UUID(v4) of the
-     * form: xxxxxxxx-xxxx-4xxx-[89ab]xxx-xxxxxxxxxxxx
-     * @param str string to validate.
-     * @private
-     */
-    Util$1.validateUuid = function (str) {
-        return str ? /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str) : false;
-    };
-
-    /**
-     * Given an array of member function names as strings, replace all of them
-     * with bound versions that will always refer to `context` as `this`. This
-     * is useful for classes where otherwise event bindings would reassign
-     * `this` to the evented object or some other value: this lets you ensure
-     * the `this` value always.
-     *
-     * @param fns list of member function names
-     * @param context the context value
-     * @example
-     * function MyClass() {
-    *   bindAll(['ontimer'], this);
-    *   this.name = 'Tom';
-    * }
-     * MyClass.prototype.ontimer = function() {
-    *   alert(this.name);
-    * };
-     * var myClass = new MyClass();
-     * setTimeout(myClass.ontimer, 100);
-     * @private
-     */
-    Util$1.bindAll = function (fns, context) {
-        fns.forEach(function (fn) {
-            if (!context[fn]) {
-                return;
-            }
-            context[fn] = context[fn].bind(context);
-        });
-    };
-
-    /**
-     * Determine if a string ends with a particular substring
-     *
-     * @private
-     */
-    Util$1.endsWith = function (string, suffix) {
-        return string.indexOf(suffix, string.length - suffix.length) !== -1;
-    };
-
-    /**
-     * Create an object by mapping all the values of an existing object while
-     * preserving their keys.
-     *
-     * @private
-     */
-    Util$1.mapObject = function (input, iterator, context) {
-        var output = {};
-        for (var key in input) {
-            output[key] = iterator.call(context || this, input[key], key, input);
-        }
-        return output;
-    };
-
-    /**
-     * Create an object by filtering out values of an existing object.
-     *
-     * @private
-     */
-    Util$1.filterObject = function (input, iterator, context) {
-        var output = {};
-        for (var key in input) {
-            if (iterator.call(context || this, input[key], key, input)) {
-                output[key] = input[key];
-            }
-        }
-        return output;
-    };
-
-    /**
-     * Deeply clones two objects.
-     *
-     * @private
-     */
-    Util$1.clone = function (input) {
-        if (Array.isArray(input)) {
-            return input.map(Util$1.clone);
-        } else if (typeof input === 'object' && input) {
-            return ((Util$1.mapObject(input, Util$1.clone)     )   );
-        } else {
-            return input;
-        }
-    };
-
-    Util$1.deepEqual = function (a, b) {
-        if (Array.isArray(a)) {
-            if (!Array.isArray(b) || a.length !== b.length) {
-                return false;
-            }
-            for (var i = 0; i < a.length; i++) {
-                if (!Util$1.deepEqual(a[i], b[i])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        if (typeof a === 'object' && a !== null && b !== null) {
-            if (!(typeof b === 'object')) {
-                return false;
-            }
-            var keys = Object.keys(a);
-            if (keys.length !== Object.keys(b).length) {
-                return false;
-            }
-            for (var key in a) {
-                if (!Util$1.deepEqual(a[key], b[key])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return a === b;
-    };
-
-    /**
-     * Check if two arrays have at least one common element.
-     *
-     * @private
-     */
-    Util$1.arraysIntersect = function (a, b) {
-        for (var l = 0; l < a.length; l++) {
-            if (b.indexOf(a[l]) >= 0) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    /**
-     * Indicates if the provided Points are in a counter clockwise (true) or clockwise (false) order
-     *
-     * @private
-     * @returns true for a counter clockwise set of points
-     */
-    // http://bryceboe.com/2006/10/23/line-segment-intersection-algorithm/
-    Util$1.isCounterClockwise = function (a, b, c) {
-        return (c.y - a.y) * (b.x - a.x) > (b.y - a.y) * (c.x - a.x);
-    };
-
-    /* global self, WorkerGlobalScope */
-    /**
-     *  Retuns true if the when run in the web-worker context.
-     *
-     * @private
-     * @returns {boolean}
-     */
-    Util$1.isWorker = function () {
-        return typeof WorkerGlobalScope !== 'undefined' && typeof self !== 'undefined' &&
-            self instanceof WorkerGlobalScope;
-    };
-
-    var _isSafari$1 = null;
-
-    /**
-     * Returns true when run in WebKit derived browsers.
-     * This is used as a workaround for a memory leak in Safari caused by using Transferable objects to
-     * transfer data between WebWorkers and the main thread.
-     * https://github.com/mapbox/mapbox-gl-js/issues/8771
-     *
-     * This should be removed once the underlying Safari issue is fixed.
-     *
-     * @private
-     * @param scope {WindowOrWorkerGlobalScope} Since this function is used both on the main thread and WebWorker context,
-     *      let the calling scope pass in the global scope object.
-     * @returns {boolean}
-     */
-    Util$1.isSafari = function (scope) {
-        if (_isSafari$1 == null) {
-            var userAgent = scope.navigator ? scope.navigator.userAgent : null;
-            _isSafari$1 = !!scope.safari || !!(userAgent && (/\b(iPad|iPhone|iPod)\b/.test(userAgent) || (!!userAgent.match('Safari') && !userAgent.match('Chrome'))));
-        }
-        return _isSafari$1;
-    };
-
-    /**
-     * Replace tokens in a string template with values in an object
-     *
-     * @param properties a key/value relationship between tokens and replacements
-     * @param text the template string
-     * @returns the template with tokens replaced
-     * @private
-     */
-    Util$1.resolveTokens = function (properties, text) {
-        return text.replace(/{([^{}]+)}/g, function (match, key) {
-            return key in properties ? String(properties[key]) : '';
-        });
-    };
-
-    /**
      * Paint properties are _transitionable_: they can change in a fluid manner, interpolating or cross-fading between
      * old and new value. The duration of the transition, and the delay before it begins, is configurable.
      *
@@ -11689,7 +11403,7 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
 
     TransitionablePropertyValue.prototype.transitioned = function transitioned(parameters, prior) {
         return new TransitioningPropertyValue(this.property, this.value, prior, // eslint-disable-line no-use-before-define
-            Util$1.extend({}, parameters.transition, this.transition), parameters.now);
+            Util.extend({}, parameters.transition, this.transition), parameters.now);
     };
 
     TransitionablePropertyValue.prototype.untransitioned = function untransitioned() {
@@ -18570,8 +18284,8 @@ define(['./when-8d13db60', './createTaskProcessorWorker', './earcut-2.2.1-b404d9
 
                     //recalculateLayers(family, this.zoom, availableImages);
                     recalculateLayers(family, 0, null);
-
-                    var bucket = buckets[layer.id] = layer.createBucket({
+                    var bucketName = layer.id;
+                    var bucket = buckets[bucketName] = layer.createBucket({
                         index: featureIndex.bucketLayerIDs.length,
                         layers: family,
     //                    zoom: this.zoom,

@@ -20,7 +20,7 @@
  * Portions licensed separately.
  * See https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md for full licensing details.
  */
-define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographic-fe4be337', './Cartesian2-85064f09', './BoundingSphere-775c5788', './Cartesian4-5af5bb24', './RuntimeError-ba10bc3e', './WebGLConstants-4c11ee5f', './ComponentDatatype-5862616f', './FeatureDetection-7bd32c34', './Transforms-b2e71640', './buildModuleUrl-14bfe498', './AttributeCompression-84a90a13', './IndexDatatype-9435b55f', './IntersectionTests-397d9494', './Plane-8390418f', './createTaskProcessorWorker', './EllipsoidTangentPlane-a815c96f', './OrientedBoundingBox-635e6e10', './TerrainEncoding-a807a704'], function (when, Check, _Math, Cartographic, Cartesian2, BoundingSphere, Cartesian4, RuntimeError, WebGLConstants, ComponentDatatype, FeatureDetection, Transforms, buildModuleUrl, AttributeCompression, IndexDatatype, IntersectionTests, Plane, createTaskProcessorWorker, EllipsoidTangentPlane, OrientedBoundingBox, TerrainEncoding) { 'use strict';
+define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographic-fe4be337', './Cartesian2-85064f09', './BoundingSphere-775c5788', './Cartesian4-5af5bb24', './RuntimeError-ba10bc3e', './WebGLConstants-4c11ee5f', './ComponentDatatype-5862616f', './FeatureDetection-7bd32c34', './Transforms-913163ed', './buildModuleUrl-9d43158d', './AttributeCompression-84a90a13', './IndexDatatype-9435b55f', './IntersectionTests-397d9494', './Plane-8390418f', './createTaskProcessorWorker', './EllipsoidTangentPlane-605dc181', './OrientedBoundingBox-64cb80e5', './TerrainEncoding-a807a704'], function (when, Check, _Math, Cartographic, Cartesian2, BoundingSphere, Cartesian4, RuntimeError, WebGLConstants, ComponentDatatype, FeatureDetection, Transforms, buildModuleUrl, AttributeCompression, IndexDatatype, IntersectionTests, Plane, createTaskProcessorWorker, EllipsoidTangentPlane, OrientedBoundingBox, TerrainEncoding) { 'use strict';
 
     /**
          * Contains functions for operating on 2D triangles.
@@ -512,7 +512,7 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
 
                 // Clip the triangle against the North-south boundary.
                 clipped2 = Intersections2D.clipTriangleAtAxisAlignedThreshold(halfMaxShort, isNorthChild, clippedTriangleVertices[0].getV(), clippedTriangleVertices[1].getV(), clippedTriangleVertices[2].getV(), clipScratch2);
-                addClippedPolygon(uBuffer, vBuffer, heightBuffer, normalBuffer, indices, vertexMap, clipped2, clippedTriangleVertices, hasVertexNormals);
+                addClippedPolygon(uBuffer, vBuffer, heightBuffer, normalBuffer, indices, vertexMap, clipped2, clippedTriangleVertices, hasVertexNormals, parentMaximumHeight, parentMinimumHeight);
 
                 // If there's another vertex in the original clipped result,
                 // it forms a second triangle.  Clip it as well.
@@ -521,7 +521,7 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
                     clippedTriangleVertices[2].initializeFromClipResult(clipped, clippedIndex, triangleVertices);
 
                     clipped2 = Intersections2D.clipTriangleAtAxisAlignedThreshold(halfMaxShort, isNorthChild, clippedTriangleVertices[0].getV(), clippedTriangleVertices[1].getV(), clippedTriangleVertices[2].getV(), clipScratch2);
-                    addClippedPolygon(uBuffer, vBuffer, heightBuffer, normalBuffer, indices, vertexMap, clipped2, clippedTriangleVertices, hasVertexNormals);
+                    addClippedPolygon(uBuffer, vBuffer, heightBuffer, normalBuffer, indices, vertexMap, clipped2, clippedTriangleVertices, hasVertexNormals, parentMaximumHeight, parentMinimumHeight);
                 }
             }
 
@@ -722,9 +722,16 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
             return when.defined(this.index);
         };
 
-        Vertex.prototype.getH = function() {
+        Vertex.prototype.getH = function(parentMaximumHeight, parentMinimumHeight) {
             if (when.defined(this.index)) {
                 return this.heightBuffer[this.index];
+            }
+            var firstH = this.first.getH(parentMaximumHeight, parentMinimumHeight);
+            var secondH = this.second.getH(parentMaximumHeight, parentMinimumHeight);
+            var realFH = parentMinimumHeight + firstH / maxShort * parentMaximumHeight;
+            var realSH = parentMinimumHeight + secondH / maxShort * parentMaximumHeight;
+            if(realFH === 0 || realSH === 0) {
+                return 0;
             }
             return _Math.CesiumMath.lerp(this.first.getH(), this.second.getH(), this.ratio);
         };
@@ -791,7 +798,7 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
         polygonVertices.push(new Vertex());
         polygonVertices.push(new Vertex());
 
-        function addClippedPolygon(uBuffer, vBuffer, heightBuffer, normalBuffer, indices, vertexMap, clipped, triangleVertices, hasVertexNormals) {
+        function addClippedPolygon(uBuffer, vBuffer, heightBuffer, normalBuffer, indices, vertexMap, clipped, triangleVertices, hasVertexNormals, parentMaximumHeight, parentMinimumHeight) {
             if (clipped.length === 0) {
                 return;
             }
@@ -812,7 +819,7 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
                         var newIndex = uBuffer.length;
                         uBuffer.push(polygonVertex.getU());
                         vBuffer.push(polygonVertex.getV());
-                        heightBuffer.push(polygonVertex.getH());
+                        heightBuffer.push(polygonVertex.getH(parentMaximumHeight, parentMinimumHeight));
                         if (hasVertexNormals) {
                             normalBuffer.push(polygonVertex.getNormalX());
                             normalBuffer.push(polygonVertex.getNormalY());

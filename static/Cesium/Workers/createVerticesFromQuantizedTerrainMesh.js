@@ -20,7 +20,7 @@
  * Portions licensed separately.
  * See https://github.com/AnalyticalGraphicsInc/cesium/blob/master/LICENSE.md for full licensing details.
  */
-define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographic-fe4be337', './Cartesian2-85064f09', './BoundingSphere-775c5788', './Cartesian4-5af5bb24', './RuntimeError-ba10bc3e', './WebGLConstants-4c11ee5f', './ComponentDatatype-5862616f', './FeatureDetection-7bd32c34', './Transforms-b2e71640', './buildModuleUrl-14bfe498', './AttributeCompression-84a90a13', './IndexDatatype-9435b55f', './IntersectionTests-397d9494', './Plane-8390418f', './WebMercatorProjection-80c70558', './createTaskProcessorWorker', './EllipsoidTangentPlane-a815c96f', './OrientedBoundingBox-635e6e10', './TerrainEncoding-a807a704'], function (when, Check, _Math, Cartographic, Cartesian2, BoundingSphere, Cartesian4, RuntimeError, WebGLConstants, ComponentDatatype, FeatureDetection, Transforms, buildModuleUrl, AttributeCompression, IndexDatatype, IntersectionTests, Plane, WebMercatorProjection, createTaskProcessorWorker, EllipsoidTangentPlane, OrientedBoundingBox, TerrainEncoding) { 'use strict';
+define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographic-fe4be337', './Cartesian2-85064f09', './BoundingSphere-775c5788', './Cartesian4-5af5bb24', './RuntimeError-ba10bc3e', './WebGLConstants-4c11ee5f', './ComponentDatatype-5862616f', './FeatureDetection-7bd32c34', './Transforms-913163ed', './buildModuleUrl-9d43158d', './AttributeCompression-84a90a13', './IndexDatatype-9435b55f', './IntersectionTests-397d9494', './Plane-8390418f', './WebMercatorProjection-80c70558', './createTaskProcessorWorker', './EllipsoidTangentPlane-605dc181', './OrientedBoundingBox-64cb80e5', './TerrainEncoding-a807a704'], function (when, Check, _Math, Cartographic, Cartesian2, BoundingSphere, Cartesian4, RuntimeError, WebGLConstants, ComponentDatatype, FeatureDetection, Transforms, buildModuleUrl, AttributeCompression, IndexDatatype, IntersectionTests, Plane, WebMercatorProjection, createTaskProcessorWorker, EllipsoidTangentPlane, OrientedBoundingBox, TerrainEncoding) { 'use strict';
 
     /**
          * Provides terrain or other geometry for the surface of an ellipsoid.  The surface geometry is
@@ -387,6 +387,8 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
                 var index = edgeIndices[i];
 
                 if(hasEdgeMap && !edgeMap[previousIndex + '_' + index]){
+                    previousIndex = index;
+                    ++vertexIndex;
                     continue ;
                 }
 
@@ -698,7 +700,7 @@ define(['./when-8d13db60', './Check-70bec281', './Math-61ede240', './Cartographi
         }
 
         var edgeMap = {};
-        var len = indices.length / 3;
+        var len = indices.length;
         for(var i = 0;i < len;i += 3){
             var i0 = indices[i];
             var i1 = indices[i + 1];

@@ -6,8 +6,9 @@ var store = {
         componentShows:[],   //1代表显示，0代表隐藏
         componentNames:[],
         componentTypes:[],
-        isEdit:true,
-        isEditZ: false,
+          // 编辑
+        isEdit:false,
+        isEditZ:false,
     },
     setisInitViewer(newValue) {
         this.state.isInitViewer = newValue;
